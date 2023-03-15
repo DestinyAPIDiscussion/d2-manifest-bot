@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import btoa from 'btoa';
 import fetch from 'cross-fetch';
 import { getDestinyManifest } from 'bungie-api-ts/destiny2';
 import { generateHttpClient } from '@d2api/manifest';
@@ -19,6 +18,8 @@ const skipCheck = process.env.SKIP_CHECK === 'true' ? true : false;
   const current = manifestMetadata.Response.version;
   const newREADME = `# d2-manifest-bot\ngithub action for checking for new d2 manifest\n\n# Current Manifest: ${current}`;
 
+  let content = '';
+
   if (!skipCheck) {
     console.log(`Latest:  ${latest}`);
     console.log(`Current: ${current}`);
@@ -31,40 +32,26 @@ const skipCheck = process.env.SKIP_CHECK === 'true' ? true : false;
 
     writeFileSync('latest.json', `${JSON.stringify(current, null, 2)}\n`, 'utf8');
     writeFileSync('README.md', newREADME, 'utf8');
+
+    content += 'The Destiny 2 manifest has been updated. ';
   }
 
-  const buildMessage = `New manifest build - ${current}`;
+  content += `Current Manifest: ${current}`;
 
   // if (!/^[.\w-]+$/.test(versionNumber)) { I AM NOT REALLY SURE THIS NEEDS DOING. }
 
-  const buildOptions = {
-    url: 'https://api.github.com/repos/DestinyItemManager/d2-additional-info/dispatches',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Authorization: 'Basic ' + btoa(process.env.PAT || ''),
-      'User-Agent': 'd2-additional-info',
-    },
+  const requestOptions = {
     body: JSON.stringify({
-      event_type: 'new-manifest-detected',
-      client_payload: {
-        message: buildMessage,
-        branch: 'master',
-        config: {
-          env: {
-            MANIFEST_VERSION: current,
-          },
-        },
-      },
+      content,
     }),
     json: true,
     method: 'POST',
   };
-  const githubFetch = await fetch(buildOptions.url, buildOptions);
+  const response = await fetch(process.env.WEBHOOK!, requestOptions);
 
-  if (!githubFetch.ok) {
-    console.log('Github returned an error');
-    console.log(githubFetch);
+  if (!response.ok) {
+    console.log('Webhook returned an error');
+    console.log(response);
     process.exit(1);
   }
 })().catch((e) => {
