@@ -41,14 +41,16 @@ const skipCheck = process.env.SKIP_CHECK === 'true' ? true : false;
   // if (!/^[.\w-]+$/.test(versionNumber)) { I AM NOT REALLY SURE THIS NEEDS DOING. }
 
   const requestOptions = {
-    url: process.env.WEBHOOK!,
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       content,
     }),
-    json: true,
-    method: 'POST',
   };
-  const response = await fetch(requestOptions.url, requestOptions);
+  const response = await fetch(process.env.WEBHOOK!, requestOptions);
 
   if (!response.ok) {
     console.log('Webhook returned an error');
