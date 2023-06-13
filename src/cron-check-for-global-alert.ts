@@ -25,20 +25,20 @@ const skipCheck = process.env.SKIP_CHECK === 'true' ? true : false;
     description: string;
     url: string;
     timestamp: string;
-    color?: string;
+    color?: number;
   }[] = [];
 
   currentAlerts.forEach((alert) => {
     let color = undefined;
     switch (alert.AlertLevel) {
       case GlobalAlertLevel.Blue:
-        color = '0x479be4';
+        color = parseInt('479be4;', 16);
         break;
       case GlobalAlertLevel.Yellow:
-        color = '0xffce1f';
+        color = parseInt('ffce1f', 16);
         break;
       case GlobalAlertLevel.Red:
-        color = '0xf44336';
+        color = parseInt('f44336', 16);
         break;
     }
 
