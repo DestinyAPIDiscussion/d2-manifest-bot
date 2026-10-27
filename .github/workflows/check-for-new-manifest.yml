@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: '*/5 * * * *'
 
+# Don't let overlapping runs post the same alert before state is committed.
+concurrency:
+  group: check-for-new-manifest
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
